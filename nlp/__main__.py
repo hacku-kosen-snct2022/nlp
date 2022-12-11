@@ -1,7 +1,6 @@
 import os
 import gensim
 from pprint import pprint
-import collections
 import requests
 from tqdm import tqdm
 
@@ -46,6 +45,27 @@ def get_similar_words(word: str) -> list[str, float]:
     return words
 
 
+def get_vector_from_words(words: list[str, float]) -> list[str, float]:
+    """単語のリストをベクトルにして返す"""
+    # 被った際の重み定数
+    _word_weight = 0.1
+
+    ret: dict[str, float] = {}
+    counters: dict[str, int] = {}
+    for ww in words:
+        word, vec = ww
+        if word not in counters.keys():
+            counters[word] = 1
+        else:
+            counters[word] += 1
+        if word not in ret.keys():
+            ret[word] = vec
+        else:
+            ret[word] += vec
+    for word in counters.keys():
+        num = counters[word]
+        ret[word] = ret[word] / num * (1 + _word_weight * num)
+    return ret
 
 
 _model_gz_path = "data/cc.ja.300.vec.gz"
@@ -62,4 +82,5 @@ if not os.path.isfile(_model_path):
 # モデルの読み込み
 wv = gensim.models.KeyedVectors.load(_model_path)
 
-pprint(get_similar_words("こんにちは"))
+# 類似した単語の取得
+pprint(get_vector_from_words(get_similar_words("おはよう")))

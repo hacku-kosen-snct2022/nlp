@@ -5,8 +5,6 @@ import collections
 import requests
 from tqdm import tqdm
 
-model_path = "data/cc.ja.300.vec.gz"
-
 
 def download_model(model_path: str):
     """指定したパスにfasttextのモデルをダウンロードする"""
@@ -25,6 +23,14 @@ def download_model(model_path: str):
         pbar.close()
 
 
+def save_model_from_gz(model_path: str, model_gz_path: str):
+    """指定したパスに圧縮されたモデルを解凍して保存する"""
+    print("Save model")
+    model = gensim.models.KeyedVectors.load_word2vec_format(model_gz_path, binary=False)
+    print("load")
+    model.save(model_path)
+
+
 def get_similar_words(word: str) -> list[str, float]:
     """類似した単語を返す"""
     words = []
@@ -40,9 +46,20 @@ def get_similar_words(word: str) -> list[str, float]:
     return words
 
 
-if not os.path.isfile(model_path):
-    download_model(model_path)
 
-wv = gensim.models.KeyedVectors.load_word2vec_format(model_path, binary=False)
+
+_model_gz_path = "data/cc.ja.300.vec.gz"
+_model_path = "data/model.bin"
+
+# モデルのDL
+if not os.path.isfile(_model_gz_path):
+    download_model(_model_gz_path)
+
+# モデルの解凍
+if not os.path.isfile(_model_path):
+    save_model_from_gz(_model_path, _model_gz_path)
+
+# モデルの読み込み
+wv = gensim.models.KeyedVectors.load(_model_path)
 
 pprint(get_similar_words("こんにちは"))

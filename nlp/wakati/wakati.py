@@ -1,5 +1,6 @@
 import MeCab
 import re
+import demoji
 
 tagger = MeCab.Tagger()
 # node.surface が取得できない時があるので、対策のおまじない
@@ -10,6 +11,8 @@ def text_to_word_by_conditions(text: str, select_conditions: list[str]) -> list[
     """文章から特定の品詞の単語を取り出す"""
     _reg_url = "https?://[\w!\?/\+\-_~=;\.,\*&@#\$%\(\)'\[\]]+"
     text = str(re.sub(_reg_url, "", text))
+    text = demoji.replace(string=text, repl="")
+    print(text)
     node = tagger.parseToNode(text)
     words = []
     while node:

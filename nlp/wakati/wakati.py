@@ -14,6 +14,8 @@ def text_to_word_by_conditions(text: str, select_conditions: list[str]) -> list[
     text = demoji.replace(string=text, repl="")
     _reg_code = "[!\"#$%&'\\\\()*+,-./:;<=>?@[\\]^_`{|}~「」〔〕“”〈〉『』【】＆＊・（）＄＃＠？！｀＋￥％]"
     text = re.sub(_reg_code, "", text)
+    _reg_num = "\d+"
+    text = re.sub(_reg_num, "", text)
     print(text)
     node = tagger.parseToNode(text)
     words = []

@@ -64,9 +64,12 @@ def save_vector():
                 for words in text_to_vectors(text).items():
                     words_vectors[words[0]] = sorted(words[1], key=lambda x: x[1], reverse=True)[-_vector_num:]
             analytics = topic.document("analytics")
+            ids = []
             for words in words_vectors.items():
+                ids.append(words[0])
                 for word in words[1]:
                     analytics.collection(words[0]).document(word[0]).set({"vector": word[1]})
+            analytics.set({"id": ids})
 
 
 save_vector()

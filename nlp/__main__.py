@@ -47,19 +47,26 @@ def text_to_vectors(text: str) -> dict[str, list[tuple[str, float]]]:
     return ret
 
 
-# ベクトル表示件数
-_vector_num = 5
+def save_vector():
+    # ベクトル表示件数
+    _vector_num = 5
 
-# 投稿取得件数
-_get_post_num = 3
-for uid in db.collections():
-    topics = uid.document("topics").collections()
-    for topic in topics:
-        posts = topic.document("timeLine").collections()
-        # postはcollectionReference
-        for post in list(posts)[-_get_post_num:]:
-            text = list(post.stream())[-1].to_dict()["memo"]
-            ret = {}
-            for words in text_to_vectors(text).items():
-                ret[words[0]] = sorted(words[1], key=lambda x: x[1], reverse=True)[-_vector_num:]
-            pprint(ret)
+    # 投稿取得件数
+    _get_post_num = 3
+    for uid in db.collections():
+        topics = uid.document("topics").collections()
+        for topic in topics:
+            words_vectors = {}
+            posts = topic.document("timeLine").collections()
+            # postはcollectionReference
+            for post in list(posts)[-_get_post_num:]:
+                text = list(post.stream())[-1].to_dict()["memo"]
+                for words in text_to_vectors(text).items():
+                    words_vectors[words[0]] = sorted(words[1], key=lambda x: x[1], reverse=True)[-_vector_num:]
+            analytics = topic.document("analytics")
+            for words in words_vectors.items():
+                for word in words[1]:
+                    analytics.collection(words[0]).document(word[0]).set({"vector": word[1]})
+
+
+save_vector()

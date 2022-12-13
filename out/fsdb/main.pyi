@@ -1,3 +1,0 @@
-import typing
-
-def get_post_memo(db: typing.Any, uid: str) -> list[str]: ...

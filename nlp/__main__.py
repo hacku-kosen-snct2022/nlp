@@ -3,6 +3,9 @@ import os
 from pprint import pprint
 import gensim
 import wakati as wakati
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
 
 # モデルのダウンロード先
 _model_gz_path = "data/cc.ja.300.vec.gz"
@@ -21,6 +24,11 @@ if not os.path.isfile(_model_path):
 
 # モデルの読み込み
 wv = gensim.models.KeyedVectors.load(_model_path)
+
+# firebase周り
+cred = credentials.Certificate("data/hackukosen-firebase-adminsdk.json")
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 _select_conditions = ["動詞", "名詞"]
 

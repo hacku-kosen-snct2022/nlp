@@ -10,8 +10,10 @@ tagger.parseToNode("")
 def text_to_word_by_conditions(text: str, select_conditions: list[str]) -> list[str]:
     """文章から特定の品詞の単語を取り出す"""
     _reg_url = "https?://[\w!\?/\+\-_~=;\.,\*&@#\$%\(\)'\[\]]+"
-    text = str(re.sub(_reg_url, "", text))
+    text = re.sub(_reg_url, "", text)
     text = demoji.replace(string=text, repl="")
+    _reg_code = "[!\"#$%&'\\\\()*+,-./:;<=>?@[\\]^_`{|}~「」〔〕“”〈〉『』【】＆＊・（）＄＃＠？！｀＋￥％]"
+    text = re.sub(_reg_code, "", text)
     print(text)
     node = tagger.parseToNode(text)
     words = []

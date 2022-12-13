@@ -6,6 +6,7 @@ import wakati as wakati
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+import fsdb as fsdb
 
 # モデルのダウンロード先
 _model_gz_path = "data/cc.ja.300.vec.gz"
@@ -45,3 +46,7 @@ def text_to_vectors(text: str) -> dict[str, list[tuple[str, float]]]:
         except:
             print(f"{word} はfasttextにありません")
     return ret
+
+
+for text in fsdb.get_post_memo(db, "uid"):
+    pprint(text_to_vectors(text))

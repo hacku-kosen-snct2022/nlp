@@ -47,6 +47,9 @@ def text_to_vectors(text: str) -> dict[str, list[tuple[str, float]]]:
     return ret
 
 
+# ベクトル表示件数
+_vector_num = 5
+
 # 投稿取得件数
 _get_post_num = 3
 for uid in db.collections():
@@ -56,4 +59,7 @@ for uid in db.collections():
         # postはcollectionReference
         for post in list(posts)[-_get_post_num:]:
             text = list(post.stream())[-1].to_dict()["memo"]
-            pprint(text_to_vectors(text))
+            ret = {}
+            for words in text_to_vectors(text).items():
+                ret[words[0]] = sorted(words[1], key=lambda x: x[1], reverse=True)[-_vector_num:]
+            pprint(ret)

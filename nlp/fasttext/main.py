@@ -1,6 +1,7 @@
 import gensim
 import requests
 from tqdm import tqdm
+from typing import Any
 
 
 def download_model(model_path: str):
@@ -28,7 +29,7 @@ def save_model_from_gz(model_path: str, model_gz_path: str):
     model.save(model_path)
 
 
-def get_similar_words(wv: any, word: str) -> list[str, float]:
+def get_similar_words(wv: Any, word: str) -> list[tuple[str, float]]:
     """類似した単語を返す"""
     words = []
     # それぞれの単語の取得数
@@ -43,7 +44,7 @@ def get_similar_words(wv: any, word: str) -> list[str, float]:
     return words
 
 
-def get_vector_from_words(words: list[str, float]) -> list[str, float]:
+def get_vector_from_words(words: list[tuple[str, float]]) -> list[tuple[str, float]]:
     """単語のリストをベクトルに加工して返す"""
     # 被った際の重み定数
     _word_weight = 0.1
@@ -63,4 +64,5 @@ def get_vector_from_words(words: list[str, float]) -> list[str, float]:
     for word in counters.keys():
         num = counters[word]
         ret[word] = ret[word] / num * (1 + _word_weight * num)
-    return ret
+
+    return list(ret.items())

@@ -25,11 +25,11 @@ wv = gensim.models.KeyedVectors.load(_model_path)
 _select_conditions = ["動詞", "名詞"]
 
 
-def text_to_vectors(text: str) -> dict[str, list[str, float]]:
+def text_to_vectors(text: str) -> dict[str, list[tuple[str, float]]]:
     """文章から特定の品詞を取り出し、それの類似単語をベクトルで返す"""
     # 単語の分解
     words = list(set(wakati.text_to_word_by_conditions(text, _select_conditions)))
-    ret: dict[str, list[str, float]] = {}
+    ret: dict[str, list[tuple[str, float]]] = {}
     for word in words:
         # 類似した単語の取得
         try:

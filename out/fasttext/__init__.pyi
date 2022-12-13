@@ -1,0 +1,1 @@
+from fasttext.main import *

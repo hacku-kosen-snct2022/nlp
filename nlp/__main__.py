@@ -79,7 +79,7 @@ def save_vector():
                 ids.append(words[0])
                 for word in words[1]:
                     vecs[word[0]] = word[1]
-                    analytics.collection(words[0]).document(word[0]).set({"vector": word[1]})
+                    # analytics.collection(words[0]).document(word[0]).set({"vector": word[1]})
 
             wc = WordCloud(
                 font_path="data/NotoSansJP-Medium.otf",

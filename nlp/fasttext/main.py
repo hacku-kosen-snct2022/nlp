@@ -47,7 +47,7 @@ def get_similar_words(wv: Any, word: str) -> list[tuple[str, float]]:
 def get_vector_from_words(words: list[tuple[str, float]]) -> list[tuple[str, float]]:
     """単語のリストをベクトルに加工して返す"""
     # 被った際の重み定数
-    _word_weight = 0.1
+    _word_weight = 0.03
 
     ret: dict[str, float] = {}
     counters: dict[str, int] = {}

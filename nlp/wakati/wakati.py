@@ -25,10 +25,10 @@ def text_to_word_by_conditions(text: str, select_conditions: list[str]) -> list[
         pos = node.feature.split(",")[0]
         # もし品詞が条件と一致してたら
         if pos in select_conditions:
-            _reg_alphabet = "/^[0-9a-zA-Z]*$/"
-            word = node.surface
-            word = re.sub(_reg_alphabet, "", word)
-            words.append(word)
+            _reg_alphabet = "^[0-9a-zA-Z]*$"
+            word = str(node.surface)
+            if not re.match(_reg_alphabet, word):
+                words.append(word)
 
         node = node.next
     return words

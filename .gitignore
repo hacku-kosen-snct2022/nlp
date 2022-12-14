@@ -131,3 +131,4 @@ dmypy.json
 
 # model
 data
+out_img

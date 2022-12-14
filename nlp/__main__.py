@@ -1,12 +1,15 @@
+import threading
 import fasttext as ft
 import os
 from pprint import pprint
 import gensim
 import wakati as wakati
 import firebase_admin
-from firebase_admin import credentials, initialize_app, storage
+from firebase_admin import credentials, initialize_app, storage, auth
 from firebase_admin import firestore
 from wordcloud import WordCloud
+import schedule
+from time import sleep
 
 # モデルのダウンロード先
 _model_gz_path = "data/cc.ja.300.vec.gz"
@@ -32,8 +35,8 @@ _gcp_json = "data/hackukosen-firebase-adminsdk.json"
 cred = credentials.Certificate(_gcp_json)
 firebase_admin.initialize_app(cred, {"storageBucket": "gs://hackukosen.appspot.com"})
 db = firestore.client()
-
 bucket = storage.bucket("hackukosen.appspot.com")
+callback_done = threading.Event()
 
 
 def text_to_vectors(text: str) -> dict[str, list[tuple[str, float]]]:
@@ -101,4 +104,42 @@ def save_vector():
             analytics.set({"id": ids, "wordcloudUrl": blob.public_url})
 
 
-save_vector()
+# save_vector()
+
+# 各uidのトピックのリスト
+known_users_topics: dict[str, list[str]] = {}
+
+
+def on_topic_snapshot(topic_snapshot, changes, read_time):
+    """各トピックの更新からベクトルを生成し保存する"""
+    for topic in topic_snapshot:
+        # ベクトルを取得し、保存する
+        pass
+    callback_done.set()
+
+
+def on_uid_snapshot(uid_snapshot, changes, read_time):
+    """uidの更新からtopicにスナップショットを設定する"""
+    for uid_collection in uid_snapshot:
+        for topic in uid_collection.collections():
+            if topic.id not in known_users_topics[uid_collection.id]:
+                known_users_topics[uid_collection.id].append(topic.id)
+                topic.on_snapshot(on_topic_snapshot)
+    callback_done.set()
+
+
+def check_new_users():
+    """新しいユーザーを探し、そのユーザーに対してスナップショットを設定する"""
+    for user in auth.list_users().users:
+        if user.uid not in known_users_topics.keys():
+            known_users_topics[user.uid] = []
+            db.collection(user.uid).on_snapshot(on_uid_snapshot)
+
+
+# 三分ごとに実行
+schedule.every(60 * 3).seconds.do(check_new_users)
+
+# Keep the app running
+while True:
+    schedule.run_pending()
+    sleep(1)

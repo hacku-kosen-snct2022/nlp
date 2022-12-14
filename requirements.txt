@@ -7,6 +7,7 @@ mecab-python3==1.0.6
 mypy==0.991
 firebase-admin==6.0.1
 wordcloud==1.8.2.2
+schedule==1.1.0
 
 # types
 types-requests

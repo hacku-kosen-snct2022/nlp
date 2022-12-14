@@ -72,5 +72,4 @@ def save_vector():
             analytics.set({"id": ids})
 
 
-# save_vector()
-text_to_vectors("こんにちは！たくさんのalphabetや123を含みます。また😀も含みますよ！https://github.com/hacku-kosen-snct2022/nlp/issues/16")
+save_vector()

@@ -35,8 +35,6 @@ db = firestore.client()
 
 bucket = storage.bucket("hackukosen.appspot.com")
 
-_select_conditions = ["動詞", "名詞"]
-
 
 def text_to_vectors(text: str) -> dict[str, list[tuple[str, float]]]:
     """文章から特定の品詞を取り出し、それの類似単語をベクトルで返す"""

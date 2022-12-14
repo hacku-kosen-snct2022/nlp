@@ -6,6 +6,7 @@ import wakati as wakati
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+from wordcloud import WordCloud
 
 # モデルのダウンロード先
 _model_gz_path = "data/cc.ja.300.vec.gz"
@@ -72,4 +73,21 @@ def save_vector():
             analytics.set({"id": ids})
 
 
-save_vector()
+# save_vector()
+
+vecs = text_to_vectors("こんにちは。これは例文です。たくさんの単語を含みたいです、りんご、ゴリラ")
+pprint(vecs)
+for vec in vecs.items():
+    dic = {}
+    for word in vec[1]:
+        dic[word[0]] = word[1]
+    wc = WordCloud(
+        font_path="data/NotoSansJP-Medium.otf",
+        width=600,
+        height=300,
+        prefer_horizontal=1,
+        background_color="white",
+        include_numbers=True,
+        colormap="tab20",
+    ).generate_from_frequencies(dic)
+    wc.to_file(f"{vec[0]}.png")

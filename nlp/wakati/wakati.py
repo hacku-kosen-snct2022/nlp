@@ -16,6 +16,7 @@ def text_to_word_by_conditions(text: str, select_conditions: list[str]) -> list[
     text = re.sub(_reg_code, "", text)
     _reg_num = "\d+"
     text = re.sub(_reg_num, "", text)
+
     print(text)
     node = tagger.parseToNode(text)
     words = []
@@ -24,7 +25,10 @@ def text_to_word_by_conditions(text: str, select_conditions: list[str]) -> list[
         pos = node.feature.split(",")[0]
         # もし品詞が条件と一致してたら
         if pos in select_conditions:
-            words.append(node.surface)
+            _reg_alphabet = "/^[0-9a-zA-Z]*$/"
+            word = node.surface
+            word = re.sub(_reg_alphabet, "", word)
+            words.append(word)
 
         node = node.next
     return words

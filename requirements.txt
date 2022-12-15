@@ -8,6 +8,7 @@ mypy==0.991
 firebase-admin==6.0.1
 wordcloud==1.8.2.2
 schedule==1.1.0
+networkx==2.8.8
 
 # types
 types-requests

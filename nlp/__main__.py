@@ -13,6 +13,7 @@ from time import sleep
 import secrets
 import datetime
 import networkx as nx
+import matplotlib.pyplot as plt
 
 # モデルのダウンロード先
 _model_gz_path = "data/cc.ja.300.vec.gz"

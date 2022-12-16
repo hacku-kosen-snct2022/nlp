@@ -192,12 +192,14 @@ def on_topic_snapshot(topic_snapshot, changes, read_time):
 def on_uid_snapshot(uid_snapshot, changes, read_time):
     """uidの更新からtopicにスナップショットを設定する"""
     for topics in uid_snapshot:
-        print(topics.id)
-        parent_id = topics.reference.parent.id
-        for topic in topics.reference.collections():
-            if topic.id not in known_users_topics[parent_id]:
-                known_users_topics[parent_id].append(topic.id)
-                topic.document("timeLine").on_snapshot(on_topic_snapshot)
+        if topics.id == "topics":
+            parent_id = topics.reference.parent.id
+            for topic in topics.reference.collections():
+                if topic.id not in known_users_topics[parent_id]:
+                    known_users_topics[parent_id].append(topic.id)
+                    topic.document("timeLine").on_snapshot(on_topic_snapshot)
+                    on_topic_snapshot([topic.document("timeLine").get()], None, None)
+
     callback_done.set()
 
 
@@ -207,12 +209,14 @@ def check_new_users():
     for user in auth.list_users().users:
         if user.uid not in known_users_topics.keys():
             known_users_topics[user.uid] = []
-            db.collection(user.uid).document("topics").on_snapshot(on_uid_snapshot)
+            db.collection(user.uid).on_snapshot(on_uid_snapshot)
+            on_uid_snapshot(db.collection(user.uid).stream(), None, None)
 
 
 # デバッグ用
 known_users_topics["uid"] = []
 db.collection("uid").on_snapshot(on_uid_snapshot)
+on_uid_snapshot(db.collection("uid").stream(), None, None)
 
 # 三分ごとに実行
 schedule.every(60 * 3).seconds.do(check_new_users)

@@ -14,6 +14,7 @@ import secrets
 import datetime
 import networkx as nx
 import matplotlib.pyplot as plt
+from pyvis.network import Network
 
 # モデルのダウンロード先
 _model_gz_path = "data/cc.ja.300.vec.gz"
@@ -21,6 +22,9 @@ _model_gz_path = "data/cc.ja.300.vec.gz"
 _model_path = "data/model.bin"
 # 取り出す品詞リスト
 _select_conditions = ["動詞", "名詞"]
+# フォント
+_font_path = "data/NotoSansJP-Medium.otf"
+_font_family = "YuMincho"
 
 # モデルのDL
 if not os.path.isfile(_model_gz_path):
@@ -99,7 +103,7 @@ def on_topic_snapshot(topic_snapshot, changes, read_time):
                 # analytics.collection(words[0]).document(word[0]).set({"vector": word[1]})
 
         wc = WordCloud(
-            font_path="data/NotoSansJP-Medium.otf",
+            font_path=_font_path,
             width=1920,
             height=1080,
             prefer_horizontal=1,
@@ -146,6 +150,7 @@ def check_new_users():
             db.collection(user.uid).document("topics").on_snapshot(on_uid_snapshot)
 
 
+"""
 # デバッグ用
 known_users_topics["uid"] = []
 db.collection("uid").on_snapshot(on_uid_snapshot)
@@ -158,3 +163,46 @@ check_new_users()
 while True:
     schedule.run_pending()
     sleep(1)
+"""
+
+G = nx.Graph()
+result = text_to_vectors("世界は恋に落ちている　光の矢胸を刺す")
+
+vec_list: list[tuple[float, str]] = []
+
+for vecs in result.items():
+    word, vectors = vecs
+    for vec in vectors:
+        vec_list.append((vec[1], vec[0]))
+
+# NetworkのRoot数
+_network_root_num = 5
+# Networkの各Node数
+_network_node_num = 5
+
+vec_list = sorted(vec_list)[-_network_root_num:]
+pprint(vec_list)
+
+node_size_list = []
+
+for vector in vec_list:
+    _, word = vector
+    vectors = ft.get_vector_from_words(ft.get_similar_words(wv, word))[-_network_node_num:]
+    G.add_node(word)
+    node_size_list.append(4000)
+
+    for vec in vectors:
+        w, v = vec
+        node_size_list.append(pow(v, 10) * 30000)
+        G.add_node(w)
+        G.add_edge(word, w, weight=v)
+
+plt.figure(figsize=(15, 15))
+pos = nx.spring_layout(G, k=0.4)
+
+nx.draw_networkx_nodes(G, pos, alpha=0.6, node_size=node_size_list)
+nx.draw_networkx_labels(G, pos, font_size=40, font_family=_font_family, font_weight="bold")
+nx.draw_networkx_edges(G, pos)
+
+plt.axis("off")
+plt.savefig("default.png")

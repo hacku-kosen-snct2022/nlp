@@ -89,7 +89,9 @@ def make_network_graph(text_vectors: dict[str, list[tuple[str, float]]], path: s
     for vector in vec_list:
         _, word = vector
         root_list.append(word)
-        vectors = ft.get_vector_from_words(ft.get_similar_words(wv, word))[-_network_node_num:]
+        vectors = sorted(ft.get_vector_from_words(ft.get_similar_words(wv, word)), key=lambda x: x[1])[
+            -_network_node_num:
+        ]
         if word not in G.nodes:
             G.add_node(word)
             node_size_list.append(4000)
@@ -129,10 +131,12 @@ def on_topic_snapshot(topic_snapshot, changes, read_time):
 
         topic = topic_doc.reference.parent
 
-        posts = topic.document("timeLine").collections()
+        posts = list(topic.document("timeLine").collections())
         texts = []
-        for post in list(posts)[-_get_post_num:]:
-            texts.append(list(post.stream())[-1].to_dict()["memo"])
+        posts = sorted(posts, key=lambda x: int(x.id))
+        for post in posts[-_get_post_num:]:
+            post_list = sorted(list(post.stream()), key=lambda x: x.id)
+            texts.append(post_list[-1].to_dict()["memo"])
 
         # ベクトル表示件数
         _vector_max_num = 70

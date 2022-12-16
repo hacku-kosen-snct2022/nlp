@@ -14,7 +14,9 @@ import secrets
 import datetime
 import networkx as nx
 import matplotlib.pyplot as plt
-from pyvis.network import Network
+import matplotlib
+
+matplotlib.use("Agg")
 
 # モデルのダウンロード先
 _model_gz_path = "data/cc.ja.300.vec.gz"
@@ -61,7 +63,55 @@ def text_to_vectors(text: str) -> dict[str, list[tuple[str, float]]]:
     return ret
 
 
-# save_vector()
+def make_network_graph(text_vectors: dict[str, list[tuple[str, float]]], path: str):
+    G = nx.Graph()
+
+    vec_list: list[tuple[float, str]] = []
+
+    for vecs in text_vectors.items():
+        word, vectors = vecs
+        for vec in vectors:
+            vec_list.append((vec[1], vec[0]))
+
+    # NetworkのRoot数
+    _network_root_num = 5
+    # Networkの各Node数
+    _network_node_num = 5
+
+    vec_list = sorted(vec_list)[-_network_root_num:]
+    pprint(vec_list)
+
+    node_size_list = []
+    edge_wight_list = []
+
+    root_list = []
+
+    for vector in vec_list:
+        _, word = vector
+        root_list.append(word)
+        vectors = ft.get_vector_from_words(ft.get_similar_words(wv, word))[-_network_node_num:]
+        if word not in G.nodes:
+            G.add_node(word)
+            node_size_list.append(4000)
+
+        for vec in vectors:
+            w, v = vec
+            if w not in G.nodes:
+                node_size_list.append(pow(v, 10) * 40000)
+                G.add_node(w)
+            edge_wight_list.append(pow(v, 5) * 20)
+            G.add_edge(word, w)
+
+    plt.figure(figsize=(23, 23))  # 12
+    pos = nx.spring_layout(G, k=0.5)
+
+    nx.draw_networkx_nodes(G, pos, alpha=0.2, node_size=node_size_list)
+    nx.draw_networkx_labels(G, pos, font_size=44, font_family=_font_family)
+    nx.draw_networkx_edges(G, pos, edge_color="c", width=edge_wight_list, alpha=0.5)
+
+    plt.axis("off")
+    plt.savefig(path)
+
 
 # 各uidのトピックのリスト
 known_users_topics: dict[str, list[str]] = {}
@@ -114,17 +164,27 @@ def on_topic_snapshot(topic_snapshot, changes, read_time):
 
         token = secrets.token_hex(16)
 
-        photo_path = f"out_img/{token}.png"
+        photo_path = f"out_img/{token}_wordcloud.png"
         wc.to_file(photo_path)
-        storage_path = f"img/{token}.png"
+        storage_path = f"img/{token}_wordcloud.png"
 
         blob = bucket.blob(storage_path)
         blob.upload_from_filename(photo_path)
 
         blob.make_public()
 
-        analytics.set({"id": ids, "wordcloudUrl": blob.public_url})
-        print(blob.public_url)
+        wordcloud_url = blob.public_url
+
+        # ネットワークグラフ生成
+        network_graph_path = f"out_img/{token}_network.png"
+        network_storage_path = f"img/{token}_network.png"
+        make_network_graph(words_vectors, network_graph_path)
+        blob = bucket.blob(network_storage_path)
+        blob.upload_from_filename(network_graph_path)
+        blob.make_public()
+        network_url = blob.public_url
+        analytics.set({"ids": ids, "wordcloudUrl": wordcloud_url, "networkGraphUrl": network_url})
+
         print(datetime.datetime.now())
     callback_done.set()
 
@@ -150,7 +210,6 @@ def check_new_users():
             db.collection(user.uid).document("topics").on_snapshot(on_uid_snapshot)
 
 
-"""
 # デバッグ用
 known_users_topics["uid"] = []
 db.collection("uid").on_snapshot(on_uid_snapshot)
@@ -163,46 +222,3 @@ check_new_users()
 while True:
     schedule.run_pending()
     sleep(1)
-"""
-
-G = nx.Graph()
-result = text_to_vectors("世界は恋に落ちている　光の矢胸を刺す")
-
-vec_list: list[tuple[float, str]] = []
-
-for vecs in result.items():
-    word, vectors = vecs
-    for vec in vectors:
-        vec_list.append((vec[1], vec[0]))
-
-# NetworkのRoot数
-_network_root_num = 5
-# Networkの各Node数
-_network_node_num = 5
-
-vec_list = sorted(vec_list)[-_network_root_num:]
-pprint(vec_list)
-
-node_size_list = []
-
-for vector in vec_list:
-    _, word = vector
-    vectors = ft.get_vector_from_words(ft.get_similar_words(wv, word))[-_network_node_num:]
-    G.add_node(word)
-    node_size_list.append(4000)
-
-    for vec in vectors:
-        w, v = vec
-        node_size_list.append(pow(v, 10) * 30000)
-        G.add_node(w)
-        G.add_edge(word, w, weight=v)
-
-plt.figure(figsize=(15, 15))
-pos = nx.spring_layout(G, k=0.4)
-
-nx.draw_networkx_nodes(G, pos, alpha=0.6, node_size=node_size_list)
-nx.draw_networkx_labels(G, pos, font_size=40, font_family=_font_family, font_weight="bold")
-nx.draw_networkx_edges(G, pos)
-
-plt.axis("off")
-plt.savefig("default.png")

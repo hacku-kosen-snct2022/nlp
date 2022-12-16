@@ -79,7 +79,7 @@ def make_network_graph(text_vectors: dict[str, list[tuple[str, float]]], path: s
     _network_node_num = 5
 
     vec_list = sorted(vec_list)[-_network_root_num:]
-    pprint(vec_list)
+    # pprint(vec_list)
 
     node_size_list: list[float] = []
     edge_wight_list = []
@@ -218,9 +218,9 @@ def check_new_users():
 
 
 # デバッグ用
-known_users_topics["uid"] = []
-db.collection("uid").on_snapshot(on_uid_snapshot)
-on_uid_snapshot(db.collection("uid").stream(), None, None)
+# known_users_topics["uid"] = []
+# db.collection("uid").on_snapshot(on_uid_snapshot)
+# on_uid_snapshot(db.collection("uid").stream(), None, None)
 
 # 三分ごとに実行
 schedule.every(60 * 3).seconds.do(check_new_users)

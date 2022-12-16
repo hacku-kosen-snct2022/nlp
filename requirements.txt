@@ -1,15 +1,16 @@
 black
-pytest==7.2.0
-gensim==4.2.0
-requests==2.28.1
-tqdm==4.64.1
-mecab-python3==1.0.6
-mypy==0.991
-firebase-admin==6.0.1
-wordcloud==1.8.2.2
-schedule==1.1.0
-networkx==2.8.8
+pytest
+gensim
+requests
+tqdm
+mecab-python3
+mypy
+firebase-admin
+wordcloud
+schedule
+networkx
 matplotlib
+demoji
 
 # types
 types-requests

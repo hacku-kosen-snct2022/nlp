@@ -17,7 +17,6 @@ def text_to_word_by_conditions(text: str, select_conditions: list[str]) -> list[
     _reg_num = "\d+"
     text = re.sub(_reg_num, "", text)
 
-    print(text)
     node = tagger.parseToNode(text)
     words = []
     while node:

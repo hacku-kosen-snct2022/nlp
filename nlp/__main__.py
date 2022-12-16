@@ -81,7 +81,7 @@ def make_network_graph(text_vectors: dict[str, list[tuple[str, float]]], path: s
     vec_list = sorted(vec_list)[-_network_root_num:]
     pprint(vec_list)
 
-    node_size_list = []
+    node_size_list: list[float] = []
     edge_wight_list = []
 
     root_list = []

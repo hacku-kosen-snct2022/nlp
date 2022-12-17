@@ -104,8 +104,8 @@ def make_network_graph(text_vectors: dict[str, list[tuple[str, float]]], path: s
             edge_wight_list.append(pow(v, 5) * 20)
             G.add_edge(word, w)
 
-    plt.figure(figsize=(23, 23))  # 12
-    pos = nx.spring_layout(G, k=0.5)
+    plt.figure(figsize=(25, 25))  # 12
+    pos = nx.spring_layout(G, k=0.6)
 
     nx.draw_networkx_nodes(G, pos, alpha=0.2, node_size=node_size_list)
     nx.draw_networkx_labels(G, pos, font_size=44, font_family=_font_family)
@@ -134,11 +134,11 @@ def on_topic_snapshot(topic_snapshot, changes, read_time):
         posts = list(topic.document("timeLine").collections())
         texts = []
         posts = sorted(posts, key=lambda x: int(x.id))
-        
+
         if posts.__len__() <= 0:
             callback_done.set()
             continue
-        
+
         for post in posts[-_get_post_num:]:
             post_list = sorted(list(post.stream()), key=lambda x: x.id)
             texts.append(post_list[-1].to_dict()["memo"])
@@ -223,9 +223,9 @@ def check_new_users():
 
 
 # デバッグ用
-known_users_topics["uid"] = []
-db.collection("uid").on_snapshot(on_uid_snapshot)
-on_uid_snapshot(db.collection("uid").stream(), None, None)
+# known_users_topics["uid"] = []
+# db.collection("uid").on_snapshot(on_uid_snapshot)
+# on_uid_snapshot(db.collection("uid").stream(), None, None)
 
 # 三分ごとに実行
 schedule.every(60 * 3).seconds.do(check_new_users)

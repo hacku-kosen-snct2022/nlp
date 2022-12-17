@@ -26,7 +26,7 @@ _model_path = "data/model.bin"
 _select_conditions = ["動詞", "名詞"]
 # フォント
 _font_path = "fonts/NotoSansJP-Medium.otf"
-_font_family = "YuMincho"
+_font_family = "Yu Mincho"
 
 # モデルのDL
 if not os.path.isfile(_model_gz_path):

@@ -104,8 +104,8 @@ def make_network_graph(text_vectors: dict[str, list[tuple[str, float]]], path: s
             edge_wight_list.append(pow(v, 5) * 20)
             G.add_edge(word, w)
 
-    plt.figure(figsize=(23, 23))  # 12
-    pos = nx.spring_layout(G, k=0.5)
+    plt.figure(figsize=(25, 25))  # 12
+    pos = nx.spring_layout(G, k=0.6)
 
     nx.draw_networkx_nodes(G, pos, alpha=0.2, node_size=node_size_list)
     nx.draw_networkx_labels(G, pos, font_size=44, font_family=_font_family)

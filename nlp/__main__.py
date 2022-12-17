@@ -26,7 +26,7 @@ _model_path = "data/model.bin"
 _select_conditions = ["動詞", "名詞"]
 # フォント
 _font_path = "fonts/NotoSansJP-Medium.otf"
-_font_family = "YuMincho"
+_font_family = "Yu Mincho"
 
 # モデルのDL
 if not os.path.isfile(_model_gz_path):
@@ -79,7 +79,7 @@ def make_network_graph(text_vectors: dict[str, list[tuple[str, float]]], path: s
     _network_node_num = 5
 
     vec_list = sorted(vec_list)[-_network_root_num:]
-    # pprint(vec_list)
+    pprint(vec_list)
 
     node_size_list: list[float] = []
     edge_wight_list = []
@@ -134,6 +134,11 @@ def on_topic_snapshot(topic_snapshot, changes, read_time):
         posts = list(topic.document("timeLine").collections())
         texts = []
         posts = sorted(posts, key=lambda x: int(x.id))
+        
+        if posts.__len__() <= 0:
+            callback_done.set()
+            continue
+        
         for post in posts[-_get_post_num:]:
             post_list = sorted(list(post.stream()), key=lambda x: x.id)
             texts.append(post_list[-1].to_dict()["memo"])
@@ -218,9 +223,9 @@ def check_new_users():
 
 
 # デバッグ用
-# known_users_topics["uid"] = []
-# db.collection("uid").on_snapshot(on_uid_snapshot)
-# on_uid_snapshot(db.collection("uid").stream(), None, None)
+known_users_topics["uid"] = []
+db.collection("uid").on_snapshot(on_uid_snapshot)
+on_uid_snapshot(db.collection("uid").stream(), None, None)
 
 # 三分ごとに実行
 schedule.every(60 * 3).seconds.do(check_new_users)
